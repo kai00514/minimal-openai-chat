@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import OpenAI from 'openai';
 import { NextResponse } from 'next/server';
 import { Ratelimit } from "@upstash/ratelimit";
@@ -49,8 +51,12 @@ export async function POST(req: Request) {
     // レスポンスをそのまま返す
     return NextResponse.json({ completion: completionText });
 
-  } catch (error: any) {
-    console.error('Error in chat API:', error);
+  } catch (error: unknown) {  // TypeScriptではエラーには `unknown` 型を使用するのが推奨されます
+    if (error instanceof Error) {
+      console.error('Error in chat API:', error.message);
+    } else {
+      console.error('An unexpected error occurred:', error);
+    }
     return NextResponse.json(
       { error: 'An error occurred while processing your request.' },
       { status: 500 }

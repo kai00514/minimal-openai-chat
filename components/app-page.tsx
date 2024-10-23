@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useRef, useEffect } from 'react'
 import { useChat } from 'ai/react'
-import { PaperAirplaneIcon, UserIcon } from '@heroicons/react/24/solid'
+import { PaperAirplaneIcon } from '@heroicons/react/24/solid'
 
 export function Page() {
   const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat()
