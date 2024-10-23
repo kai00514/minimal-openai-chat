@@ -1,55 +1,12 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { PaperAirplaneIcon } from '@heroicons/react/24/solid'
+import { useChat } from 'ai/react'
+import { PaperAirplaneIcon, UserIcon } from '@heroicons/react/24/solid'
 
-// メッセージの型定義
-interface Message {
-  id: number;
-  role: 'user' | 'assistant';
-  content: string;
-}
-
-export default function Chat() {
-  const [messages, setMessages] = useState<Message[]>([])
-  const [input, setInput] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+export function Page() {
+  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat()
   const messagesEndRef = useRef<HTMLDivElement>(null)
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInput(e.target.value)
-  }
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-
-    if (!input.trim()) return
-
-    const userMessage: Message = { id: Date.now(), role: 'user', content: input }
-    setMessages((prevMessages) => [...prevMessages, userMessage])
-
-    setIsLoading(true)
-
-    try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ messages: [...messages, userMessage] }),
-      })
-
-      const data = await res.json()
-
-      const assistantMessage: Message = { id: Date.now() + 1, role: 'assistant', content: data.completion }
-      setMessages((prevMessages) => [...prevMessages, assistantMessage])
-    } catch (error) {
-      console.error('Error sending message:', error)
-    } finally {
-      setIsLoading(false)
-      setInput('')
-    }
-  }
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -62,7 +19,6 @@ export default function Chat() {
           <h1 className="text-3xl font-bold text-gray-900">AI Chat App</h1>
         </div>
       </header>
-
       <main className="flex-grow overflow-auto">
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           <div className="px-4 py-6 sm:px-0">
@@ -71,7 +27,9 @@ export default function Chat() {
                 {messages.map((m) => (
                   <div
                     key={m.id}
-                    className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                    className={`flex ${
+                      m.role === 'user' ? 'justify-end' : 'justify-start'
+                    }`}
                   >
                     <div
                       className={`max-w-xs md:max-w-md lg:max-w-lg xl:max-w-xl px-4 py-2 rounded-lg ${
@@ -79,7 +37,6 @@ export default function Chat() {
                           ? 'bg-blue-500 text-white'
                           : 'bg-gray-200 text-gray-800'
                       }`}
-                      style={{ whiteSpace: 'pre-wrap' }}  // 改行と空白を保持するスタイルを追加
                     >
                       <p className="text-sm">{m.content}</p>
                     </div>
@@ -91,7 +48,6 @@ export default function Chat() {
           </div>
         </div>
       </main>
-
       <footer className="bg-white shadow">
         <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
           <form onSubmit={handleSubmit} className="flex items-center space-x-2">
